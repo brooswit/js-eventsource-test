@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>LaunchDarkly tutorial</title>
+    <script src=<%= eventSourcePolyfillUrl %>></script>
+    <script src="https://app.launchdarkly.com/snippet/ldclient.min.js"></script>
+  </head>
+  <body>
+    <script>
+      var user = {
+        "anonymous": true,
+        "key": "<%= ldUserKey %>",
+        "custom": {
+          "<%= ldUserCustomAttributeKey %>": "<%= ldUserCustomAttributeValue %>"
+        }
+      };
+
+      var div = document.createElement("div");
+      document.body.appendChild(div);
+      
+      div.appendChild(document.createTextNode('Initializing...'));
+
+      var ldclient = LDClient.initialize('<%= ldClientSideId %>', user);
+      
+      function render() {
+        console.log('rendering: ', user);
+        let flagKey = "<%= ldFlagKey %>";
+        let variation = ldclient.variation(flagKey, <%= ldFlagDefault %>);
+        var shouldShow = !!variation;
+        var label = "(" + variation + ") " + (shouldShow ? "Showing" : "Not showing") + " " + flagKey + " to " + user.key;
+        div.replaceChild(document.createTextNode(label), div.firstChild);
+      }
+      
+      ldclient.on('ready', render);
+      ldclient.on('change', render);
+    </script>
+  </body>
+</html>
